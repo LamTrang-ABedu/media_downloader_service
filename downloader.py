@@ -52,7 +52,8 @@ def download_from_url(url):
                     'Accept-Language': 'en-US,en;q=0.9'
                 }
             })
-        elif domain in ['x.com', 'twitter.com', 'instagram.com', 'facebook.com', 'pornhub.com']:
+
+        elif domain in COOKIE_URL_MAP:
             ydl_opts.update({
                 'cookiefile': cookiefile
             })
@@ -100,11 +101,27 @@ def _extract_item(info):
             best_video = fmt
         if not best_audio and fmt.get('acodec') != 'none' and fmt.get('url'):
             best_audio = fmt
+    
+    domain = urlparse(source_url).netloc        
+    proxy_domains = ['youtube.com', 'pornhub.com']
+    use_proxy = any(d in domain for d in proxy_domains)
 
+    video_url = best_video.get('url') if best_video else None
+    if use_proxy and video_url:
+        proxied = f"/api/proxy?real_url={video_url}&referer={source_url}"
+        return {
+            'title': info.get('title'),
+            'video_url': proxied,
+            'audio_url': best_audio.get('url'),
+            'thumbnail': info.get('thumbnail'),
+            'ext': best_video.get('ext'),
+            'webpage_url': source_url,
+            'protected': True
+        }
     if best_video and best_audio:
         return {
             'title': info.get('title'),
-            'video_url': best_video.get('url'),
+            'video_url': video_url,
             'audio_url': best_audio.get('url'),
             'thumbnail': info.get('thumbnail'),
             'ext': best_video.get('ext'),
