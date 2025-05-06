@@ -11,6 +11,7 @@ COOKIE_URL_MAP = {
     "facebook.com": "https://r2.lam.io.vn/cookies/facebook_cookies.txt",
     "tiktok.com": "https://r2.lam.io.vn/cookies/tiktok_cookies.txt",
     "pornhub.com": "https://r2.lam.io.vn/cookies/pornhub_cookies.txt",
+    "youtube.com": "https://r2.lam.io.vn/cookies/youtube_cookies.txt",
 }
 
 def download_from_url(url):
@@ -45,11 +46,12 @@ def download_from_url(url):
 
         elif domain == 'youtube.com':
             ydl_opts.update({
+                'cookiefile': cookiefile,
                 'http_headers': {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                    'Accept-Language': 'en-US,en;q=0.9'
                 }
             })
-
         elif domain in ['x.com', 'twitter.com', 'instagram.com', 'facebook.com', 'pornhub.com']:
             ydl_opts.update({
                 'cookiefile': cookiefile
