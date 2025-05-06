@@ -55,7 +55,7 @@ def download_from_url(url):
             })
 
         with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
+            info = ydl.extract_info(url, download=False)
             if not info:
                 return {'status': 'error', 'message': 'Failed to extract media info'}
 
