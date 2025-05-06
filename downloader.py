@@ -27,8 +27,7 @@ def download_from_url(url):
         ydl_opts = {
             "quiet": True,
             "force_generic_extractor": False,
-            'merge_output_format': 'mp4',  # ensure video+audio merged
-            'format': 'bv+ba/best',        # bestvideo+audio fallback best
+            'format': 'bv+ba/best',  # best video + audio or fallback
         }
 
         if domain == 'tiktok.com':
@@ -55,7 +54,7 @@ def download_from_url(url):
             })
 
         with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
+            info = ydl.extract_info(url, download=False)
             if not info:
                 return {'status': 'error', 'message': 'Failed to extract media info'}
 
@@ -88,52 +87,32 @@ def _download_cookie_once(remote_url, local_path):
 
 def _extract_item(info):
     source_url = info.get('webpage_url', '')
-    ext = info.get('ext')
-    url = info.get('url')
+    formats = info.get('formats', [])
+    best_video = None
+    best_audio = None
 
-    if not url and 'formats' in info:
-        formats = [f for f in info['formats'] if f.get('url')]
-        if formats:
-            best = formats[-1]
-            url = best.get('url')
-            ext = best.get('ext', ext)
+    for fmt in formats:
+        if not best_video and fmt.get('vcodec') != 'none' and fmt.get('url'):
+            best_video = fmt
+        if not best_audio and fmt.get('acodec') != 'none' and fmt.get('url'):
+            best_audio = fmt
 
-    if 'x.com' in source_url or 'twitter.com' in source_url:
-        best_format = None
-        if 'formats' in info:
-            formats = [f for f in info['formats'] if f.get('ext') == 'mp4' and f.get('url')]
-            best_format = formats[-1] if formats else None
-
+    if best_video and best_audio:
         return {
             'title': info.get('title'),
-            'url': best_format.get('url') if best_format else url,
+            'video_url': best_video.get('url'),
+            'audio_url': best_audio.get('url'),
             'thumbnail': info.get('thumbnail'),
-            'ext': best_format.get('ext') if best_format else ext,
-            'webpage_url': source_url
+            'ext': best_video.get('ext'),
+            'webpage_url': source_url,
+            'needs_merge': True
         }
-
-    elif 'instagram.com' in source_url:
-        if url and url.endswith(('.jpg', '.jpeg', '.png')):
-            return {
-                'title': info.get('title') or 'Instagram Image',
-                'url': url,
-                'thumbnail': url,
-                'ext': 'jpg',
-                'webpage_url': source_url
-            }
-        elif ext == 'mp4':
-            return {
-                'title': info.get('title') or 'Instagram Video',
-                'url': url,
-                'thumbnail': info.get('thumbnail'),
-                'ext': 'mp4',
-                'webpage_url': source_url
-            }
 
     return {
         'title': info.get('title'),
-        'url': url,
+        'url': info.get('url'),
         'thumbnail': info.get('thumbnail'),
-        'ext': ext,
-        'webpage_url': source_url
+        'ext': info.get('ext'),
+        'webpage_url': source_url,
+        'needs_merge': False
     }
