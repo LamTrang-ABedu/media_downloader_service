@@ -102,26 +102,10 @@ def _extract_item(info):
         if not best_audio and fmt.get('acodec') != 'none' and fmt.get('url'):
             best_audio = fmt
     
-    domain = urlparse(source_url).netloc        
-    proxy_domains = ['youtube.com', 'pornhub.com']
-    use_proxy = any(d in domain for d in proxy_domains)
-
-    video_url = best_video.get('url') if best_video else None
-    if use_proxy and video_url:
-        proxied = f"/api/proxy?real_url={video_url}&referer={source_url}"
-        return {
-            'title': info.get('title'),
-            'video_url': proxied,
-            'audio_url': best_audio.get('url'),
-            'thumbnail': info.get('thumbnail'),
-            'ext': best_video.get('ext'),
-            'webpage_url': source_url,
-            'protected': True
-        }
     if best_video and best_audio:
         return {
             'title': info.get('title'),
-            'video_url': video_url,
+            'video_url': best_video.get('url'),
             'audio_url': best_audio.get('url'),
             'thumbnail': info.get('thumbnail'),
             'ext': best_video.get('ext'),
