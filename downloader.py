@@ -11,6 +11,7 @@ COOKIE_URL_MAP = {
     "facebook.com": "https://r2.lam.io.vn/cookies/facebook_cookies.txt",
     "tiktok.com": "https://r2.lam.io.vn/cookies/tiktok_cookies.txt",
 }
+
 def download_from_url(url):
     try:
         domain = urlparse(url).netloc.replace("www.", "")
@@ -26,7 +27,10 @@ def download_from_url(url):
         ydl_opts = {
             "quiet": True,
             "force_generic_extractor": False,
+            'merge_output_format': 'mp4',  # ensure video+audio merged
+            'format': 'bv+ba/best',        # bestvideo+audio fallback best
         }
+
         if domain == 'tiktok.com':
             ydl_opts.update({
                 'cookiefile': cookiefile,
@@ -45,12 +49,10 @@ def download_from_url(url):
                 }
             })
 
-        elif domain == 'x.com' or domain == 'twitter.com' or domain == 'instagram.com' or domain == 'facebook.com':
+        elif domain in ['x.com', 'twitter.com', 'instagram.com', 'facebook.com']:
             ydl_opts.update({
-                'cookiefile': cookiefile,
-                'skip_download': True
+                'cookiefile': cookiefile
             })
-
 
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
@@ -89,7 +91,6 @@ def _extract_item(info):
     ext = info.get('ext')
     url = info.get('url')
 
-    # ✅ Fallback: nếu url bị null thì lấy từ formats
     if not url and 'formats' in info:
         formats = [f for f in info['formats'] if f.get('url')]
         if formats:
@@ -97,7 +98,6 @@ def _extract_item(info):
             url = best.get('url')
             ext = best.get('ext', ext)
 
-    # 🐦 Twitter/X
     if 'x.com' in source_url or 'twitter.com' in source_url:
         best_format = None
         if 'formats' in info:
@@ -112,9 +112,7 @@ def _extract_item(info):
             'webpage_url': source_url
         }
 
-    # 📸 Instagram
     elif 'instagram.com' in source_url:
-        # Nếu là ảnh
         if url and url.endswith(('.jpg', '.jpeg', '.png')):
             return {
                 'title': info.get('title') or 'Instagram Image',
@@ -123,7 +121,6 @@ def _extract_item(info):
                 'ext': 'jpg',
                 'webpage_url': source_url
             }
-        # Nếu là video
         elif ext == 'mp4':
             return {
                 'title': info.get('title') or 'Instagram Video',
@@ -133,7 +130,6 @@ def _extract_item(info):
                 'webpage_url': source_url
             }
 
-    # 🌐 Mặc định (Facebook, TikTok, YouTube...)
     return {
         'title': info.get('title'),
         'url': url,
