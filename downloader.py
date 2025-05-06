@@ -27,6 +27,7 @@ def download_from_url(url):
         ydl_opts = {
             "quiet": True,
             "force_generic_extractor": False,
+            'merge_output_format': 'mp4',  # ensure video+audio merged
             'format': 'bv+ba/best',  # best video + audio or fallback
         }
 
