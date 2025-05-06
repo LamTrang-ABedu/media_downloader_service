@@ -10,6 +10,7 @@ COOKIE_URL_MAP = {
     "instagram.com": "https://r2.lam.io.vn/cookies/instagram_cookies.txt",
     "facebook.com": "https://r2.lam.io.vn/cookies/facebook_cookies.txt",
     "tiktok.com": "https://r2.lam.io.vn/cookies/tiktok_cookies.txt",
+    "pornhub.com": "https://r2.lam.io.vn/cookies/pornhub_cookies.txt",
 }
 
 def download_from_url(url):
@@ -49,7 +50,7 @@ def download_from_url(url):
                 }
             })
 
-        elif domain in ['x.com', 'twitter.com', 'instagram.com', 'facebook.com']:
+        elif domain in ['x.com', 'twitter.com', 'instagram.com', 'facebook.com', 'pornhub.com']:
             ydl_opts.update({
                 'cookiefile': cookiefile
             })
