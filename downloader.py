@@ -57,7 +57,7 @@ def download_from_url(url):
                 'format': 'bv+ba/best',
                 'merge_output_format': 'mp4',
                 'force_insecure_extractor': True,
-                'extractor_args': {'youtube': ['clientưebb']},
+                'extractor_args': {'youtube': ['client=web']},
                 'http_headers': {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
