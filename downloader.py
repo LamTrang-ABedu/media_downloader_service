@@ -36,7 +36,7 @@ def download_from_url(url):
 
         if domain == 'tiktok.com':
             ydl_opts.update({
-                'cookiefile': cookiefile,,
+                'cookiefile': cookiefile,
                 'quiet': False,
                 'verbose': True,
                 'http_headers': {
