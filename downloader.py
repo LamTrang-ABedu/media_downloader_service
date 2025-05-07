@@ -2,7 +2,6 @@ from yt_dlp import YoutubeDL
 import requests
 import os
 from urllib.parse import urlparse
-import subprocess
 
 # URL cookies từ R2
 COOKIE_URL_MAP = {
@@ -28,73 +27,60 @@ def download_from_url(url):
             if not _download_cookie_once(COOKIE_URL_MAP[domain], cookiefile):
                 return {'status': 'error', 'message': f"Failed to download cookies for {domain}"}
 
-        if domain in ['youtube.com', 'youtu.be']:
-            # Sử dụng subprocess để gọi yt-dlp
-            cmd = [
-                'yt-dlp',
-                '--cookies', cookiefile,
-                '--geo-bypass',
-                '--geo-bypass-country', 'US',
-                '--extractor-args', 'youtube:client=web',
-                '--merge-output-format', 'mp4',
-                '--format', 'bv+ba/best',
-                '--quiet',
-                '--no-warnings',
-                '--print-json',
-                url
-            ]
+        ydl_opts = {
+            "quiet": True,
+            "force_generic_extractor": False,
+            'merge_output_format': 'mp4',  # ensure video+audio merged
+            'format': 'bv+ba/best',  # best video + audio or fallback
+        }
 
-            try:
-                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-                info = json.loads(result.stdout)
-                media_list = []
+        if domain == 'tiktok.com':
+            ydl_opts.update({
+                'cookiefile': cookiefile,
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)...',
+                    'Referer': 'https://www.tiktok.com/',
+                    'Origin': 'https://www.tiktok.com',
+                    'Accept-Language': 'en-US,en;q=0.9'
+                }
+            })
 
-                if 'entries' in info:
-                    for entry in info['entries']:
-                        media_list.append(_extract_item(entry))
-                else:
-                    media_list.append(_extract_item(info))
+        elif domain == 'youtube.com' or domain == 'youtu.be':
+            ydl_opts.update({
+                'cookiefile': cookiefile,
+                'geo_bypass': True,
+                'geo_bypass_country': 'US',
+                'quiet': False,
+                'verbose': True,
+                'format': 'bv+ba/best',
+                'merge_output_format': 'mp4',
+                'force_insecure_extractor': True,
+                'extractor_args': ['youtube:client=mweb'],
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                }
+            })
 
-                return {'status': 'ok', 'media': media_list}
-            except subprocess.CalledProcessError as e:
-                return {'status': 'error', 'message': f"Lỗi khi tải video: {e.stderr}"}
-        else:
-            ydl_opts = {
-                "quiet": True,
-                "force_generic_extractor": False,
-                'merge_output_format': 'mp4',  # ensure video+audio merged
-                'format': 'bv+ba/best',  # best video + audio or fallback
-            }
-    
-            if domain == 'tiktok.com':
-                ydl_opts.update({
-                    'cookiefile': cookiefile,
-                    'http_headers': {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)...',
-                        'Referer': 'https://www.tiktok.com/',
-                        'Origin': 'https://www.tiktok.com',
-                        'Accept-Language': 'en-US,en;q=0.9'
-                    }
-                })
-    
-            elif domain in COOKIE_URL_MAP:
-                ydl_opts.update({
-                    'cookiefile': cookiefile
-                })
-    
-            with YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                if not info:
-                    return {'status': 'error', 'message': 'Failed to extract media info'}
-    
-                media_list = []
-                if 'entries' in info:
-                    for entry in info['entries']:
-                        media_list.append(_extract_item(entry))
-                else:
-                    media_list.append(_extract_item(info))
-    
-            return {'status': 'ok', 'media': media_list}
+        elif domain in COOKIE_URL_MAP:
+            ydl_opts.update({
+                'cookiefile': cookiefile
+            })
+
+        with YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            if not info:
+                return {'status': 'error', 'message': 'Failed to extract media info'}
+
+            media_list = []
+            if 'entries' in info:
+                for entry in info['entries']:
+                    media_list.append(_extract_item(entry))
+            else:
+                media_list.append(_extract_item(info))
+
+        return {'status': 'ok', 'media': media_list}
     except Exception as e:
         return {'status': 'error', 'message': str(e)}
 
