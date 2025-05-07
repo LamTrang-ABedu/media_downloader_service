@@ -2,7 +2,16 @@ from yt_dlp import YoutubeDL
 import requests
 import os
 from urllib.parse import urlparse
+from yt_dlp.extractor.youtube import YoutubeIE
+from yt_dlp.extractor import gen_extractor_classes
+from yt_dlp import YoutubeDL
 
+# Patch để ép client=web cho riêng YouTube
+class PatchedYoutubeIE(YoutubeIE):
+    def _real_initialize(self):
+        super()._real_initialize()
+        self._player_client = 'web'  # Ép client thành "web" thật sự
+        
 # URL cookies từ R2
 COOKIE_URL_MAP = {
     "x.com": "https://r2.lam.io.vn/cookies/x_cookies.txt",
@@ -27,6 +36,38 @@ def download_from_url(url):
             if not _download_cookie_once(COOKIE_URL_MAP[domain], cookiefile):
                 return {'status': 'error', 'message': f"Failed to download cookies for {domain}"}
 
+        # Patch YouTube extractor nếu là YouTube
+        if domain in ['youtube.com', 'youtu.be']:
+            ydl_opts = {
+                'cookiefile': cookiefile,
+                'quiet': False,
+                'verbose': True,
+                'geo_bypass': True,
+                'geo_bypass_country': 'US',
+                'format': 'bv+ba/best',
+                'merge_output_format': 'mp4',
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                },
+                'extractor_classes': [
+                    PatchedYoutubeIE if e.IE_NAME == 'youtube' else e
+                    for e in gen_extractor_classes()
+                ]
+            }
+
+            with YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                media_list = []
+                if 'entries' in info:
+                    for entry in info['entries']:
+                        media_list.append(_extract_item(entry))
+                else:
+                    media_list.append(_extract_item(info))
+
+            return {'status': 'ok', 'media': media_list}
+            
         ydl_opts = {
             "quiet": True,
             "force_generic_extractor": False,
@@ -46,25 +87,7 @@ def download_from_url(url):
                     'Accept-Language': 'en-US,en;q=0.9'
                 }
             })
-
-        elif domain == 'youtube.com' or domain == 'youtu.be':
-            ydl_opts.update({
-                #'cookiefile': cookiefile,
-                'geo_bypass': True,
-                'geo_bypass_country': 'US',
-                'quiet': False,
-                'verbose': True,
-                'format': 'bv+ba/best',
-                'merge_output_format': 'mp4',
-                'force_insecure_extractor': True,
-                'extractor_args': {'youtube': ['client=web']},
-                'http_headers': {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language': 'en-US,en;q=0.9',
-                }
-            })
-
+        
         elif domain in COOKIE_URL_MAP:
             ydl_opts.update({
                 'cookiefile': cookiefile
