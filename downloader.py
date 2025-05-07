@@ -48,13 +48,13 @@ def download_from_url(url):
         elif domain == 'youtube.com' or domain == 'youtu.be':
             ydl_opts.update({
                 'cookiefile': cookiefile,
+                'geo_bypass': True,
+                'geo_bypass_country': 'US',
+                'quiet': False,
+                'verbose': True,
                 'http_headers': {
-                    'geo_bypass': True,
-                    'geo_bypass_country': "US",
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
                     'Accept-Language': 'en-US,en;q=0.9',
-                    'verbose': True,
-                    'quiet': False,
                 }
             })
 
