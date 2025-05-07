@@ -46,7 +46,7 @@ def download_from_url(url):
         # Patch YouTube extractor nếu là YouTube
         if domain in ['youtube.com', 'youtu.be']:
             ydl_opts = {
-                'cookiefile': cookiefile,
+                # 'cookiefile': cookiefile,
                 'quiet': False,
                 'verbose': True,
                 'geo_bypass': True,
