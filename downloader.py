@@ -2,6 +2,7 @@ from yt_dlp import YoutubeDL
 import requests
 import os
 from urllib.parse import urlparse
+import subprocess
 
 # URL cookies từ R2
 COOKIE_URL_MAP = {
