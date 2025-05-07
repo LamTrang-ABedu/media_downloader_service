@@ -11,8 +11,8 @@ COOKIE_URL_MAP = {
     "facebook.com": "https://r2.lam.io.vn/cookies/facebook_cookies.txt",
     "tiktok.com": "https://r2.lam.io.vn/cookies/tiktok_cookies.txt",
     "pornhub.com": "https://r2.lam.io.vn/cookies/pornhub_cookies.txt",
-    "youtube.com": "https://r2.lam.io.vn/cookies/youtube_cookies.txt",
-    "youtu.be": "https://r2.lam.io.vn/cookies/youtube_cookies.txt",
+    #"youtube.com": "https://r2.lam.io.vn/cookies/youtube_cookies.txt",
+    #"youtu.be": "https://r2.lam.io.vn/cookies/youtube_cookies.txt",
 }
 
 def download_from_url(url):
@@ -49,7 +49,7 @@ def download_from_url(url):
 
         elif domain == 'youtube.com' or domain == 'youtu.be':
             ydl_opts.update({
-                'cookiefile': cookiefile,
+                #'cookiefile': cookiefile,
                 'geo_bypass': True,
                 'geo_bypass_country': 'US',
                 'quiet': False,
@@ -57,7 +57,7 @@ def download_from_url(url):
                 'format': 'bv+ba/best',
                 'merge_output_format': 'mp4',
                 'force_insecure_extractor': True,
-                'extractor_args': {'youtube': ['player_client=web_embed']},
+                'extractor_args': {'youtube': ['clientưebb']},
                 'http_headers': {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
