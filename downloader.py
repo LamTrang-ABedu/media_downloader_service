@@ -83,14 +83,14 @@ def download_from_url(url):
         }
 
         if domain == 'tiktok.com':
+            print(f"[Tiktok] ydl_opts.update for {domain}...")
+            # Resolve redirect
             url = resolve_redirect(url)
             print(f"[Tiktok] resolve redirect: {url}")
             ydl_opts.update({
                 'cookiefile': cookiefile,
                 'quiet': False,
                 'verbose': True,
-                'geo_bypass': True,
-                'geo_bypass_country': 'US',
                 'format': 'bv+ba/best',
                 'merge_output_format': 'mp4',
                 'http_headers': {
