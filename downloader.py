@@ -128,15 +128,22 @@ def _download_cookie_once(remote_url, local_path):
 def _extract_item(info):
     source_url = info.get('webpage_url', '')
     formats = info.get('formats', [])
-    best_video = None
-    best_audio = None
-
-    for fmt in formats:
-        if not best_video and fmt.get('vcodec') != 'none' and fmt.get('url'):
-            best_video = fmt
-        if not best_audio and fmt.get('acodec') != 'none' and fmt.get('url'):
-            best_audio = fmt
     
+     # Ưu tiên chất lượng cao nhất
+    video_streams = sorted(
+        [f for f in formats if f.get('vcodec') != 'none' and f.get('url')],
+        key=lambda x: x.get('height', 0),
+        reverse=True
+    )
+    audio_streams = sorted(
+        [f for f in formats if f.get('acodec') != 'none' and f.get('url')],
+        key=lambda x: x.get('abr', 0),
+        reverse=True
+    )
+
+    best_video = video_streams[0] if video_streams else None
+    best_audio = audio_streams[0] if audio_streams else None
+
     if best_video and best_audio:
         return {
             'title': info.get('title'),
