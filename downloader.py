@@ -12,6 +12,7 @@ COOKIE_URL_MAP = {
     "tiktok.com": "https://r2.lam.io.vn/cookies/tiktok_cookies.txt",
     "pornhub.com": "https://r2.lam.io.vn/cookies/pornhub_cookies.txt",
     "youtube.com": "https://r2.lam.io.vn/cookies/youtube_cookies.txt",
+    "youtu.be": "https://r2.lam.io.vn/cookies/youtube_cookies.txt",
 }
 
 def download_from_url(url):
@@ -44,7 +45,7 @@ def download_from_url(url):
                 }
             })
 
-        elif domain == 'youtube.com':
+        elif domain == 'youtube.com' or domain == 'youtu.be':
             ydl_opts.update({
                 'cookiefile': cookiefile,
                 'http_headers': {
