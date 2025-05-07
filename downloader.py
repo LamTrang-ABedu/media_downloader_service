@@ -157,7 +157,7 @@ def _extract_item(info):
 
     return {
         'title': info.get('title'),
-        'url': info.get('url'),
+        'video_url': info.get('url'),
         'thumbnail': info.get('thumbnail'),
         'ext': info.get('ext'),
         'webpage_url': source_url,
