@@ -144,10 +144,15 @@ def _extract_item(info):
     
      # Ưu tiên chất lượng cao nhất
     video_streams = sorted(
-        [f for f in formats if f.get('vcodec') != 'none' and f.get('url')],
-        key=lambda x: x.get('height', 0),
+        [f for f in formats if f.get('vcodec') != 'none' and f.get('url') and f.get('height') is not None],
+        key=lambda x: x['height'],
         reverse=True
     )
+
+    # Nếu không còn format rõ ràng về height → thử lấy stream đầu tiên khả dụng (fallback mềm)
+    if not video_streams:
+        video_streams = [f for f in formats if f.get('vcodec') != 'none' and f.get('url')]
+
     audio_streams = sorted(
         [f for f in formats if f.get('acodec') != 'none' and f.get('url')],
         key=lambda x: x.get('abr', 0),
