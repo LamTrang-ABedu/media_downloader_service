@@ -79,7 +79,11 @@ def download_from_url(url):
             ydl_opts.update({
                 'cookiefile': cookiefile,
                 'quiet': False,
-                'verbose': True,
+                'verbose': True,,
+                'geo_bypass': True,
+                'geo_bypass_country': 'US',
+                'format': 'bv+ba/best',
+                'merge_output_format': 'mp4',
                 'http_headers': {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)...',
                     'Referer': 'https://www.tiktok.com/',
