@@ -79,7 +79,7 @@ def download_from_url(url):
             ydl_opts.update({
                 'cookiefile': cookiefile,
                 'quiet': False,
-                'verbose': True,,
+                'verbose': True,
                 'geo_bypass': True,
                 'geo_bypass_country': 'US',
                 'format': 'bv+ba/best',
