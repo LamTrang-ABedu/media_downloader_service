@@ -6,6 +6,13 @@ from yt_dlp.extractor.youtube import YoutubeIE
 from yt_dlp.extractor import gen_extractor_classes
 from yt_dlp import YoutubeDL
 
+def resolve_redirect(url):
+    try:
+        response = requests.head(url, allow_redirects=True)
+        return response.url
+    except:
+        return url  # fallback nếu lỗi
+
 # Patch để ép client=web cho riêng YouTube
 class PatchedYoutubeIE(YoutubeIE):
     def _real_initialize(self):
@@ -76,6 +83,8 @@ def download_from_url(url):
         }
 
         if domain == 'tiktok.com':
+            url = resolve_redirect(url)
+            print(f"[Tiktok] resolve redirect: {url}")
             ydl_opts.update({
                 'cookiefile': cookiefile,
                 'quiet': False,
