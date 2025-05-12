@@ -1,0 +1,12 @@
+[Unit]
+Description=HopeHub media downloader service
+After=network.target
+
+[Service]
+ExecStart=/opt/hopehub/media_downloader_service/run.sh
+WorkingDirectory=/opt/hopehub/media_downloader_service
+Restart=always
+User=ubuntu
+
+[Install]
+WantedBy=multi-user.target
