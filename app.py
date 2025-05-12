@@ -4,7 +4,7 @@ import requests
 
 app = Flask(__name__)
 
-@app.route("/api/media-download", methods=["GET"])
+@app.route("/api/media-downloader", methods=["GET"])
 def api_download():
     url = request.args.get("url", "")
     if not url:
