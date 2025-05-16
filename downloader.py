@@ -6,6 +6,10 @@ from yt_dlp.extractor.youtube import YoutubeIE
 from yt_dlp.extractor import gen_extractor_classes
 from yt_dlp import YoutubeDL
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+COOKIE_DIR = os.path.join(BASE_DIR, "tmp")
+os.makedirs(COOKIE_DIR, exist_ok=True)  # Đảm bảo thư mục tồn tại
+
 def resolve_redirect(url):
     try:
         response = requests.head(url, allow_redirects=True)
@@ -34,10 +38,10 @@ COOKIE_URL_MAP = {
 def download_from_url(url):
     try:
         domain = urlparse(url).netloc.replace("www.", "")
-        cookiefile = None
         if domain in COOKIE_URL_MAP:
             print(f"Downloading cookies for {domain}...")
-            cookiefile = f"/tmp/{domain.replace('.', '_')}_cookies.txt"
+            # Trong hàm download_from_url:
+            cookiefile = os.path.join(COOKIE_DIR, f"{domain.replace('.', '_')}_cookies.txt")
 
             # Tải cookie và xử lý lỗi
             if not _download_cookie_once(COOKIE_URL_MAP[domain], cookiefile):
